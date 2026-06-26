@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Luyện Đề Tương Tác - Ms Lê Hằng English</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #8854C0;
+            --primary-light: #a272dc;
+            --secondary: #00C9A7;
+            --accent: #FDCB6E;
+            --correct: #00D26A;
+            --wrong: #FF4757;
+            --bg-dark: #2d124d;
+            --text-dark: #2d3748;
+            --card-shadow: 0 8px 0px rgba(0,0,0,0.15);
+            --btn-shadow: 0 5px 0px rgba(0,0,0,0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Quicksand', sans-serif;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: linear-gradient(135deg, #8854C0, #FDCB6E, #00C9A7, #8854C0);
+            background-size: 400% 400%;
+            animation: gradientBG 20s ease infinite;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><text x='10' y='30' font-size='22' opacity='0.15'>⭐</text><text x='50' y='70' font-size='22' opacity='0.15'>🐾</text><text x='80' y='20' font-size='22' opacity='0.15'>☁️</text><text x='30' y='80' font-size='22' opacity='0.15'>🌸</text></svg>");
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Top Control Bar */
+        .top-bar {
+            height: 70px;
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 4px solid rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            z-index: 10;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .author-tag {
+            display: flex;
+            flex-direction: column;
+        }
+        .author-tag h3 {
+            margin: 0;
+            color: var(--primary);
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        .author-tag span {
+            font-size: 0.75rem;
+            color: #718096;
+            font-weight: 600;
+        }
+
+        .timer-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-timer {
+            background: var(--accent);
+            border: 2px solid #000;
+            padding: 8px 16px;
+            border-radius: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #000;
+            transition: transform 0.1s;
+        }
+        .btn-timer:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .timer-display {
+            background: #000;
+            color: #fff;
+            padding: 6px 15px;
+            border-radius: 12px;
+            font-family: monospace;
+            font-size: 1.3rem;
+            font-weight: bold;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        /* Main Workspace: Split-Screen */
+        .workspace {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 70px);
+            position: relative;
+            z-index: 2;
+        }
+
+        .pane {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            height: 100%;
+        }
+
+        .left-pane {
+            background: rgba(255, 255, 255, 0.85);
+            border-right: 4px solid rgba(0,0,0,0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .right-pane {
+            background: rgba(247, 250, 252, 0.85);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Elements Styling */
+        .passage-card {
+            background: white;
+            border: 3px solid #000;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+        }
+
+        .passage-title {
+            color: var(--primary);
+            margin-top: 0;
+            font-size: 1.4rem;
+            border-bottom: 3px dashed var(--accent);
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .passage-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-dark);
+            white-space: pre-line;
+        }
+
+        .btn-translate {
+            background: var(--secondary);
+            color: white;
+            border: 2px solid #000;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 15px;
+            box-shadow: 0 3px 0 #000;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-translate:active {
+            transform: translateY(3px);
+            box-shadow: none;
+        }
+
+        .translation-box {
+            display: none;
+            background: #e6f9f5;
+            border: 2px solid var(--secondary);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 12px;
+            font-size: 0.95rem;
+            color: #1a202c;
+            line-height: 1.6;
+        }
+
+        /* Glossary Table */
+        .glossary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border: 2px solid #000;
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+        }
+        .glossary-table th {
+            background: var(--primary);
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        .glossary-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+        }
+        .glossary-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Exercises & Question Cards */
+        .exercise-header {
+            background: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 15px;
+            border: 3px solid #000;
+            margin-bottom: 25px;
+            box-shadow: var(--btn-shadow);
+        }
+        .exercise-header h2 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .question-card {
+            background: white;
+            border: 3px solid #000;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+        }
+
+        .question-number {
+            background: var(--accent);
+            border: 2px solid #000;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        .question-stem {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 15px;
+        }
+
+        /* Options layout */
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: white;
+            border: 2px solid #000;
+            border-radius: 15px;
+            padding: 12px 18px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: left;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #000;
+            transition: all 0.1s ease;
+            position: relative;
+        }
+
+        .option-btn:hover:not(.disabled) {
+            transform: scale(1.01) translateY(-2px);
+            box-shadow: 0 6px 0 #000;
+            background: #faf5ff;
+        }
+
+        .option-btn:active:not(.disabled) {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        /* Status colors */
+        .option-btn.correct-choice {
+            background: var(--correct) !important;
+            color: white !important;
+            box-shadow: 0 4px 0 #1b8c47 !important;
+        }
+        .option-btn.wrong-choice {
+            background: var(--wrong) !important;
+            color: white !important;
+            box-shadow: 0 4px 0 #a6242e !important;
+            animation: shake 0.4s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+
+        /* Inline click-to-reveal fill styling */
+        .inline-fill-blank {
+            display: inline-block;
+            background: #edf2f7;
+            border: 2px dashed #4a5568;
+            padding: 2px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--primary);
+            transition: background 0.2s;
+            margin: 0 4px;
+        }
+        .inline-fill-blank:hover {
+            background: var(--accent);
+        }
+        .inline-fill-blank.revealed {
+            background: #e6fdf1;
+            border: 2px solid var(--correct);
+            color: var(--correct);
+        }
+
+        /* Explanation Box */
+        .explanation-box {
+            display: none;
+            background: #fffaf0;
+            border-left: 5px solid var(--accent);
+            border-top: 2px solid #e2e8f0;
+            border-right: 2px solid #e2e8f0;
+            border-bottom: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .explanation-box.visible {
+            display: block;
+        }
+
+        /* Footer Submit Section */
+        .footer-action {
+            padding: 20px 30px;
+            background: white;
+            border-top: 4px solid rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .btn-submit {
+            background: var(--primary);
+            color: white;
+            border: 3px solid #000;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: var(--btn-shadow);
+        }
+        .btn-submit:active {
+            transform: translateY(5px);
+            box-shadow: none;
+        }
+
+        /* Modal Dashboard Kết Quả */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .modal-card {
+            background: white;
+            border: 4px solid #000;
+            border-radius: 30px;
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 15px 0px rgba(0,0,0,0.3);
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn {
+            from { transform: scale(0.7); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .score-circle {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            border: 4px solid #000;
+            background: var(--accent);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0 auto 20px auto;
+            box-shadow: 0 6px 0 #000;
+        }
+        .modal-feedback {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+        .btn-close-modal {
+            background: var(--secondary);
+            color: white;
+            border: 2px solid #000;
+            padding: 10px 25px;
+            border-radius: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #000;
+        }
+
+        /* Canvas for confetti */
+        #confetti-canvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 99;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #edf2f7;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-light);
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- Top Control Bar -->
+    <div class="top-bar">
+        <div class="author-tag">
+            <h3>Học Tiếng Anh Cùng Ms Lê Hằng</h3>
+            <span>Thạc Sĩ Ngôn Ngữ Học Nguyện Giải Chi Tiết</span>
+        </div>
+        <div class="timer-container">
+            <button class="btn-timer" id="timer-ctrl-btn" onclick="toggleTimer()">BẮT ĐẦU TÍNH GIỜ LÀM BÀI</button>
+            <div class="timer-display" id="time-clock">10:00</div>
+        </div>
+    </div>
+
+    <!-- Main Dynamic Workspace -->
+    <div class="workspace">
+        
+        <!-- Left Side: Reading Text Pieces -->
+        <div class="pane left-pane">
+            
+            <!-- EX 16 - PASSAGE 1 -->
+            <div class="passage-card" id="passage-ex16-1">
+                <div class="passage-title">❶ Announcement: Friends Personality Quiz!</div>
+                <div class="passage-text">Do you want (1)_____ what kind of friend you are? Come and try our Friends Personality Quiz! It’s fun, easy, and only (2)_____ a few minutes. You will answer simple questions about your likes, hobbies, and how you help your friends. (3)_____ the end, you will learn more about (4)_____ friendship style - are you a kind helper, a fun buddy, or a good listener?
+                ∞ Date: This Friday
+                ⎣ Place: Room 3A
+                🕒 Time: 10:30 a.m.
+                Bring a smile and enjoy with your friends!</div>
+                <button class="btn-translate" onclick="toggleTranslation('trans-ex16-1')">Mở dịch đoạn này 🌟</button>
+                <div class="translation-box" id="trans-ex16-1">
+                    Bạn có muốn biết mình là kiểu người bạn như thế nào không? Hãy đến và thử Bài trắc nghiệm tính cách tình bạn của chúng tôi! Nó rất vui, dễ dàng và chỉ mất vài phút. Bạn sẽ trả lời những câu hỏi đơn giản về sở thích, thói quen và cách bạn giúp đỡ bạn bè của mình. Vào cuối bài, bạn sẽ hiểu thêm về phong cách tình bạn của chính mình - bạn là một người trợ giúp tử tế, một người bạn vui vẻ hay một người biết lắng nghe?
+                    ∞ Ngày: Thứ Sáu tuần này
+                    ⎣ Địa điểm: Phòng 3A
+                    🕒 Thời gian: 10:30 sáng
+                    Hãy mang theo nụ cười và tận hưởng cùng bạn bè nhé!
+                </div>
+                <table class="glossary-table">
+                    <thead><tr><th>Từ vựng</th><th>Loại từ</th><th>Nghĩa Việt</th></tr></thead>
+                    <tbody>
+                        <tr><td>Personality</td><td>(n)</td><td>Tính cách, nhân cách</td></tr>
+                        <tr><td>Quiz</td><td>(n)</td><td>Bài trắc nghiệm ngắn</td></tr>
+                        <tr><td>Simple</td><td>(adj)</td><td>Đơn giản, dễ dàng</td></tr>
+                        <tr><td>Hobby</td><td>(n)</td><td>Sở thích cá nhân</td></tr>
+                        <tr><td>Friendship</td><td>(n)</td><td>Tình bạn, tình hữu nghị</td></tr>
+                        <tr><td>Style</td><td>(n)</td><td>Phong cách, kiểu cách</td></tr>
+                        <tr><td>Helper</td><td>(n)</td><td>Người giúp đỡ, trợ thủ</td></tr>
+                        <tr><td>Buddy</td><td>(n)</td><td>Người bạn thân, tri kỷ</td></tr>
+                        <tr><td>Listener</td><td>(n)</td><td>Người lắng nghe</td></tr>
+                        <tr><td>Enjoy</td><td>(v)</td><td>Tận hưởng, thưởng thức</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- EX 16 - PASSAGE 2 -->
+            <div class="passage-card" id="passage-ex16-2">
+                <div class="passage-title">❷ Notice: My Friends</div>
+                <div class="passage-text">I have many good friends (1)____ school. They are kind, funny, and (2)_____. We play games and study together every day. My best friend is Nam. He is friendly and always (3)______ me with homework. On weekends, we go to the park or play football. I feel happy when I am with my friends. We laugh, talk, and have a great time. Friends are important because they make life fun and special. Let’s always be good friends and (4)_____ care of one another!
+                ☞ Do you have good friends too?</div>
+                <button class="btn-translate" onclick="toggleTranslation('trans-ex16-2')">Mở dịch đoạn này 🌟</button>
+                <div class="translation-box" id="trans-ex16-2">
+                    Tớ có rất nhiều người bạn tốt ở trường. Họ tốt bụng, vui vẻ và hay giúp đỡ người khác. Chúng tớ chơi trò chơi và học tập cùng nhau mỗi ngày. Bạn thân nhất của tớ là Nam. Bạn ấy rất thân thiện và luôn giúp đỡ tớ làm bài tập về nhà. Vào cuối tuần, chúng tớ ra công viên hoặc chơi đá bóng. Tớ cảm thấy hạnh phúc khi ở bên cạnh bạn bè của mình. Chúng tớ cười đùa, trò chuyện và có một khoảng thời gian tuyệt vời. Bạn bè rất quan trọng vì họ làm cho cuộc sống trở nên vui vẻ và đặc biệt. Hãy luôn là những người bạn tốt và chăm sóc lẫn nhau nhé!
+                    ☞ Bạn cũng có những người bạn tốt chứ?
+                </div>
+                <table class="glossary-table">
+                    <thead><tr><th>Từ vựng</th><th>Loại từ</th><th>Nghĩa Việt</th></tr></thead>
+                    <tbody>
+                        <tr><td>Together</td><td>(adv)</td><td>Cùng nhau, cùng lúc</td></tr>
+                        <tr><td>Friendly</td><td>(adj)</td><td>Thân thiện, mến khách</td></tr>
+                        <tr><td>Homework</td><td>(n)</td><td>Bài tập về nhà</td></tr>
+                        <tr><td>Weekend</td><td>(n)</td><td>Cuối tuần (Thứ 7 & CN)</td></tr>
+                        <tr><td>Important</td><td>(adj)</td><td>Quan trọng, trọng đại</td></tr>
+                        <tr><td>Special</td><td>(adj)</td><td>Đặc biệt, khác biệt</td></tr>
+                        <tr><td>Each other</td><td>(pron)</td><td>Lẫn nhau (2 đối tượng)</td></tr>
+                        <tr><td>Laugh</td><td>(v)</td><td>Cười lớn, tiếng cười</td></tr>
+                        <tr><td>Care</td><td>(v/n)</td><td>Chăm sóc, quan tâm</td></tr>
+                        <tr><td>One another</td><td>(pron)</td><td>Lẫn nhau (nhiều đối tượng)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- EX 16 - PASSAGE 3 -->
+            <div class="passage-card" id="passage-ex16-3">
+                <div class="passage-title">❸ Advertisement: My Friends – A Gift in Life!</div>
+                <div class="passage-text">Do you have (1)______ friends? I do! My friends are always there for me. We play, laugh, and study together. They help me when I’m sad and cheer me (2)_____. My best friend is Linh. She is kind and always smiles. On Sundays, we (3)_____ bikes and eat ice cream. Having friends makes life fun and happy. Good friends share, listen, and care.
+                ) Let’s (4)______ friendship every day!
+                Be a good friend – it starts with you!
+                Ζ Friends make everything better!</div>
+                <button class="btn-translate" onclick="toggleTranslation('trans-ex16-3')">Mở dịch đoạn này 🌟</button>
+                <div class="translation-box" id="trans-ex16-3">
+                    Bạn có những người bạn tuyệt vời không? Tớ thì có đấy! Bạn bè của tớ luôn ở bên cạnh tớ. Chúng tớ chơi, cười và học bài cùng nhau. Họ giúp tớ khi tớ buồn và cổ vũ tớ vui lên. Bạn thân nhất của tớ là Linh. Cậu ấy tốt bụng và luôn mỉm cười. Vào các ngày Chủ Nhật, chúng tớ đạp xe và ăn kem. Có bạn bè làm cho cuộc sống tràn ngập niềm vui và hạnh phúc. Những người bạn tốt luôn sẻ chia, lắng nghe và quan tâm.
+                    ) Hãy cùng trân trọng và tôn vinh tình bạn mỗi ngày!
+                    Hãy là một người bạn tốt – điều đó bắt đầu từ chính bạn!
+                    Ζ Bạn bè khiến mọi thứ trở nên tuyệt vời hơn!
+                </div>
+                <table class="glossary-table">
+                    <thead><tr><th>Từ vựng</th><th>Loại từ</th><th>Nghĩa Việt</th></tr></thead>
+                    <tbody>
+                        <tr><td>Gift</td><td>(n)</td><td>Món quà, quà tặng</td></tr>
+                        <tr><td>Cheer up</td><td>(v)</td><td>Cổ vũ, làm cho vui lên</td></tr>
+                        <tr><td>Ice cream</td><td>(n)</td><td>Kem, món kem lạnh</td></tr>
+                        <tr><td>Share</td><td>(v)</td><td>Chia sẻ, phân chia</td></tr>
+                        <tr><td>Celebrate</td><td>(v)</td><td>Kỷ niệm, tôn vinh, ăn mừng</td></tr>
+                        <tr><td>Start</td><td>(v)</td><td>Bắt đầu, khởi hành</td></tr>
+                        <tr><td>Better</td><td>(adj)</td><td>Tốt hơn, cải thiện hơn</td></tr>
+                        <tr><td>Amazing</td><td>(adj)</td><td>Tuyệt vời, kinh ngạc</td></tr>
+                        <tr><td>Sad</td><td>(adj)</td><td>Buồn bã, phiền muộn</td></tr>
+                        <tr><td>Every day</td><td>(adv)</td><td>Mỗi ngày, hàng ngày</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- EX 17 - PASSAGE 1 -->
+            <div class="passage-card" id="passage-ex17-1">
+                <div class="passage-title">❶ Susan is my best friend.</div>
+                <div class="passage-text">Susan is my best friends. She is tall and has a long black (1)______. She lives in an apartment. Her apartment has a pool but she rarely (2)_______ to the swimming pool. Her favorite subject (3)_______ IT, she really likes using computers, she always goes to the IT club every 5.30 p.m. on Friday. She is very (4)_______. She always helps people when they need. Susan and I have the festival (5)_______ school next week. It starts at 10 a.m. and ends at 9 p.m. We (6)_______ and can't wait to go to the festival.</div>
+                <button class="btn-translate" onclick="toggleTranslation('trans-ex17-1')">Mở dịch đoạn này 🌟</button>
+                <div class="translation-box" id="trans-ex17-1">
+                    Susan là bạn thân nhất của tớ. Cô ấy cao và có mái tóc dài màu đen. Cô ấy sống trong một căn hộ chung cư. Căn hộ của cô ấy có một bể bơi nhưng cô ấy hiếm khi đi đến bể bơi. Môn học yêu thích của cô ấy là Công nghệ thông tin (IT), cô ấy rất thích sử dụng máy tính, cô ấy luôn đến câu lạc bộ IT vào lúc 5:30 chiều thứ Sáu hàng tuần. Cô ấy rất hay giúp đỡ mọi người. Cô ấy luôn giúp người khác khi họ cần. Susan và tớ có một lễ hội ở trường vào tuần tới. Nó bắt đầu lúc 10 giờ sáng và kết thúc lúc 9 giờ tối. Chúng tớ đang vô cùng hào hứng và không thể chờ đợi thêm để được đi đến lễ hội đó.
+                </div>
+                <table class="glossary-table">
+                    <thead><tr><th>Từ vựng</th><th>Loại từ</th><th>Nghĩa Việt</th></tr></thead>
+                    <tbody>
+                        <tr><td>Apartment</td><td>(n)</td><td>Căn hộ chung cư</td></tr>
+                        <tr><td>Rarely</td><td>(adv)</td><td>Hiếm khi, ít khi</td></tr>
+                        <tr><td>Favorite</td><td>(adj)</td><td>Yêu thích, đắc ý nhất</td></tr>
+                        <tr><td>Subject</td><td>(n)</td><td>Môn học, đề tài</td></tr>
+                        <tr><td>Club</td><td>(n)</td><td>Câu lạc bộ</td></tr>
+                        <tr><td>Need</td><td>(v/n)</td><td>Cần thiết, nhu cầu</td></tr>
+                        <tr><td>Festival</td><td>(n)</td><td>Lễ hội, ngày hội</td></tr>
+                        <tr><td>Excited</td><td>(adj)</td><td>Hào hứng, phấn khích</td></tr>
+                        <tr><td>Wait</td><td>(v)</td><td>Chờ đợi, ngóng trông</td></tr>
+                        <tr><td>Swimming pool</td><td>(n)</td><td>Bể bơi, hồ bơi</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- EX 17 - PASSAGE 2 -->
+            <div class="passage-card" id="passage-ex17-2">
+                <div class="passage-title">❷ Tony's Daily Routine</div>
+                <div class="passage-text">Tony is my best friend. He is a physics teacher. He's (1)_____ art school in Scotland. Every morning he gets up at 6 o'clock, (2)______ breakfast and a glass of milk. Then he leaves for work. The school is far from his home, so he can't (3)_______ there. He must go by bus. He has lunch at a (4)______ nearby. In the afternoon he works until 5 o’clock and then he goes home. He doesn't work (5)______ Sundays. He goes to the cinema or museum. He is married and he (6)_______ a son. He loves his family. They are very happy.</div>
+                <button class="btn-translate" onclick="toggleTranslation('trans-ex17-2')">Mở dịch đoạn này 🌟</button>
+                <div class="translation-box" id="trans-ex17-2">
+                    Tony là bạn thân nhất của tớ. Anh ấy là một giáo viên dạy Vật lý. Anh ấy giảng dạy tại một trường nghệ thuật ở Scotland. Mỗi buổi sáng anh ấy thức dậy lúc 6 giờ, ăn sáng và uống một ly sữa. Sau đó anh ấy rời nhà đi làm. Trường học cách xa nhà anh ấy, vì vậy anh ấy không thể đi bộ đến đó. Anh ấy phải đi bằng xe buýt. Anh ấy ăn trưa tại một nhà hàng gần đó. Vào buổi chiều anh ấy làm việc đến 5 giờ và sau đó đi về nhà. Anh ấy không làm việc vào các ngày Chủ Nhật. Anh ấy thường đi xem phim hoặc tham quan bảo tàng. Anh ấy đã kết hôn và có một cậu con trai. Anh ấy rất yêu gia đình mình. Họ rất hạnh phúc.
+                </div>
+                <table class="glossary-table">
+                    <thead><tr><th>Từ vựng</th><th>Loại từ</th><th>Nghĩa Việt</th></tr></thead>
+                    <tbody>
+                        <tr><td>Physics</td><td>(n)</td><td>Môn Vật lý</td></tr>
+                        <tr><td>Leave for</td><td>(v)</td><td>Rời đi để đến nơi nào</td></tr>
+                        <tr><td>Far from</td><td>(adj)</td><td>Cách xa, xa xôi</td></tr>
+                        <tr><td>On foot</td><td>(idiom)</td><td>Đi bộ bằng chân</td></tr>
+                        <tr><td>Nearby</td><td>(adj/adv)</td><td>Gần đây, bên cạnh</td></tr>
+                        <tr><td>Museum</td><td>(n)</td><td>Bảo tàng</td></tr>
+                        <tr><td>Married</td><td>(adj)</td><td>Đã kết hôn, lập gia đình</td></tr>
+                        <tr><td>Son</td><td>(n)</td><td>Con trai (trong gia đình)</td></tr>
+                        <tr><td>Routine</td><td>(n)</td><td>Thói quen, lịch trình hằng ngày</td></tr>
+                        <tr><td>Until</td><td>(conj/prep)</td><td>Cho đến khi</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- EX 18 - PASSAGE 1 -->
+            <div class="passage-card" id="passage-ex18-1">
+                <div class="passage-title">❶ Dear Grandma - Letter from Brisbane</div>
+                <div class="passage-text">Dear Grandma,
+                I’m writing to you from the summer camp in Brisbane, I’m here with all of my friends from school. The camp is very nice and the weather is fine, too. We can take part in many activities such as going fishing, sailing, playing volleyball on the beach, visiting a museum in the city centre or having parties at the camp.
+                I’m sharing a room with two friends: Hana and Mi. Hana has short curly dark hair and big round eyes. She is very kind and friendly. She’s willing to help others in the camp.
+                We’re having a great time here! Can you send my regards to Grandpa?
+                Write to me soon.
+                With love,
+                Tina</div>
+                <button class="btn-translate" onclick="toggleTranslation('trans-ex18-1')">Mở dịch đoạn này 🌟</button>
+                <div class="translation-box" id="trans-ex18-1">
+                    Bà kính yêu,
+                    Cháu đang viết thư cho bà từ trại hè ở Brisbane, cháu ở đây cùng tất cả bạn bè ở trường học. Trại hè rất đẹp và thời tiết cũng rất tuyệt vời nữa bà ạ. Chúng cháu có thể tham gia vào rất nhiều hoạt động như đi câu cá, chèo thuyền, chơi bóng chuyền trên bãi biển, tham quan bảo tàng ở trung tâm thành phố hoặc tổ chức các bữa tiệc tại trại hè.
+                    Cháu đang ở chung phòng với hai người bạn: Hana và Mi. Hana có mái tóc sẫm màu xoăn ngắn và đôi mắt tròn to. Bạn ấy rất tốt bụng và thân thiện. Bạn ấy luôn sẵn lòng giúp đỡ những người khác trong hội trại.
+                    Chúng cháu đang có một khoảng thời gian tuyệt vời ở đây! Bà cho cháu gửi lời hỏi thăm đến Ông nhé ạ?
+                    Viết thư cho cháu sớm bà nhé.
+                    Yêu bà,
+                    Tina
+                </div>
+                <table class="glossary-table">
+                    <thead><tr><th>Từ vựng</th><th>Loại từ</th><th>Nghĩa Việt</th></tr></thead>
+                    <tbody>
+                        <tr><td>Summer camp</td><td>(n)</td><td>Trại hè</td></tr>
+                        <tr><td>Take part in</td><td>(v)</td><td>Tham gia vào, gia nhập</td></tr>
+                        <tr><td>Sailing</td><td>(n)</td><td>Hoạt động chèo thuyền buồm</td></tr>
+                        <tr><td>Activity</td><td>(n)</td><td>Hoạt động, hành động</td></tr>
+                        <tr><td>Curly</td><td>(adj)</td><td>Xoăn, quăn (tóc)</td></tr>
+                        <tr><td>Willing to</td><td>(adj)</td><td>Sẵn lòng, tự nguyện làm gì</td></tr>
+                        <tr><td>Regards</td><td>(n)</td><td>Lời hỏi thăm, lời kính chào</td></tr>
+                        <tr><td>Beach</td><td>(n)</td><td>Bãi biển</td></tr>
+                        <tr><td>Share</td><td>(v)</td><td>Chia sẻ, ở chung</td></tr>
+                        <tr><td>Others</td><td>(pron)</td><td>Những người khác, vật khác</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- EX 18 - PASSAGE 2 -->
+            <div class="passage-card" id="passage-ex18-2">
+                <div class="passage-title">❷ Julie and Her Best Friend Janet</div>
+                <div class="passage-text">I’m Julie and my best friend is Janet. We’re 12 years old and we’re in the same class. Both of us are tall and slim. I’m a bit quiet and shy, and Janet is kind and friendly. We like to spend our free time together. At break time, we sometimes play skipping or we just sit and chat. We live in the same building, so we always walk home together and talk about our homework. Janet is very helpful to me. When I’m doing my homework and I don’t understand a question, I often call her for help. At weekends, Janet usually wants to go skating in the park or go to the cinema, but I like staying at home and reading comic books. However, we often plan our day together.</div>
+                <button class="btn-translate" onclick="toggleTranslation('trans-ex18-2')">Mở dịch đoạn này 🌟</button>
+                <div class="translation-box" id="trans-ex18-2">
+                    Tớ là Julie và bạn thân nhất của tớ là Janet. Chúng tớ 12 tuổi và học cùng một lớp. Cả hai đứa tớ đều cao và gầy mảnh khảnh. Tớ thì hơi trầm tính và nhút nhát một chút, còn Janet thì tốt bụng và thân thiện. Chúng tớ thích dành thời gian rảnh rỗi ở bên nhau. Vào giờ giải lao, đôi khi chúng tớ chơi nhảy dây hoặc chỉ ngồi tán gẫu. Chúng tớ sống chung trong một tòa nhà, vì vậy cả hai luôn đi bộ về nhà cùng nhau và bàn luận về bài tập. Janet vô cùng có ích với tớ. Khi tớ làm bài tập và không hiểu câu hỏi, tớ thường gọi điện cho cậu ấy để nhờ trợ giúp. Vào cuối tuần, Janet thường muốn đi trượt pa-tin ở công viên hoặc đi xem phim, nhưng tớ lại thích ở nhà đọc truyện tranh hơn. Mặc dù vậy, chúng tớ vẫn thường lên kế hoạch cho một ngày cùng nhau.
+                </div>
+                <table class="glossary-table">
+                    <thead><tr><th>Từ vựng</th><th>Loại từ</th><th>Nghĩa Việt</th></tr></thead>
+                    <tbody>
+                        <tr><td>Slim</td><td>(adj)</td><td>Mảnh khảnh, gầy gò thon thả</td></tr>
+                        <tr><td>Shy</td><td>(adj)</td><td>Nhút nhát, e thẹn</td></tr>
+                        <tr><td>Spend</td><td>(v)</td><td>Dành (thời gian / tiền bạc)</td></tr>
+                        <tr><td>Break time</td><td>(n)</td><td>Giờ giải lao, giờ ra chơi</td></tr>
+                        <tr><td>Skipping</td><td>(n)</td><td>Trò chơi nhảy dây</td></tr>
+                        <tr><td>Chat</td><td>(v/n)</td><td>Trò chuyện, tán gẫu</td></tr>
+                        <tr><td>Building</td><td>(n)</td><td>Tòa nhà, cao ốc</td></tr>
+                        <tr><td>Understand</td><td>(v)</td><td>Hiểu biết, thấu hiểu</td></tr>
+                        <tr><td>Skating</td><td>(n)</td><td>Môn trượt pa-tin/trượt băng</td></tr>
+                        <tr><td>Comic book</td><td>(n)</td><td>Truyện tranh</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- EX 18 - PASSAGE 3 -->
+            <div class="passage-card" id="passage-ex18-3">
+                <div class="passage-title">❸ Nga and Lan at Long Hoa Secondary School</div>
+                <div class="passage-text">My name is Nga and my best friend is Lan. She is my classmate. We are both in grade 6 at Long Hoa Secondary School. Lan lives next to my house. Everyday, my father takes us to school on his motorbike, and we come home on foot in the evening. She is an intelligent girl. Her favourite subject is Math, and she is really good at it. Mine is English. We usually help each other with our homework. Whenever I am sad, Lan always tells me stories to make me happy. I feel really lucky to have a best friend like Lan.</div>
+                <button class="btn-translate" onclick="toggleTranslation('trans-ex18-3')">Mở dịch đoạn này 🌟</button>
+                <div class="translation-box" id="trans-ex18-3">
+                    Tên của tớ là Nga và bạn thân nhất của tớ là Lan. Cậu ấy là bạn cùng lớp của tớ. Cả hai chúng tớ đều học lớp 6 trường THCS Long Hòa. Lan sống ngay cạnh nhà tớ. Hàng ngày, bố tớ chở hai đứa đến trường bằng xe máy, và tụi tớ đi bộ về nhà vào buổi tối. Cậu ấy là một cô gái thông minh. Môn học yêu thích của cậu ấy là Toán, và cậu ấy thực sự giỏi môn đó. Còn của tớ là tiếng Anh. Chúng tớ thường xuyên giúp đỡ nhau làm bài tập về nhà. Bất cứ khi nào tớ buồn, Lan luôn kể chuyện cho tớ nghe để làm tớ vui lên. Tớ cảm thấy thực sự may mắn khi có một người bạn thân như Lan.
+                </div>
+                <table class="glossary-table">
+                    <thead><tr><th>Từ vựng</th><th>Loại từ</th><th>Nghĩa Việt</th></tr></thead>
+                    <tbody>
+                        <tr><td>Classmate</td><td>(n)</td><td>Bạn cùng lớp</td></tr>
+                        <tr><td>Secondary school</td><td>(n)</td><td>Trường trung học cơ sở</td></tr>
+                        <tr><td>Intelligent</td><td>(adj)</td><td>Thông minh, sáng dạ</td></tr>
+                        <tr><td>Good at</td><td>(adj)</td><td>Giỏi, xuất sắc về mảng nào</td></tr>
+                        <tr><td>Whenever</td><td>(conj)</td><td>Bất cứ khi nào</td></tr>
+                        <tr><td>Lucky</td><td>(adj)</td><td>May mắn, hạnh vận</td></tr>
+                        <tr><td>Next to</td><td>(prep)</td><td>Ngay cạnh bên, kế bên</td></tr>
+                        <tr><td>Motorbike</td><td>(n)</td><td>Xe máy, xe mô tô</td></tr>
+                        <tr><td>Evening</td><td>(n)</td><td>Buổi tối, buổi chiều tà</td></tr>
+                        <tr><td>Story</td><td>(n)</td><td>Câu chuyện, giai thoại</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- EX 19 - PASSAGE -->
+            <div class="passage-card" id="passage-ex19">
+                <div class="passage-title">● Profile of Mark (Mike)</div>
+                <div class="passage-text">Mike is my best friend. He is tall and sporty because he plays sports every day. He has short dark hair and big eyes. There is always a bright smile on his face. At school, he studies very hard. Maths is his favourite subject. He is an active person when he joins most sport competitions in the school as well as in the city. He also plays volleyball very well. At home, Mark is a good son because he obeys his parents and spends time helping them with the housework.</div>
+                <button class="btn-translate" onclick="toggleTranslation('trans-ex19')">Mở dịch đoạn này 🌟</button>
+                <div class="translation-box" id="trans-ex19">
+                    Mike là bạn thân nhất của tớ. Cậu ấy cao ráo và trông rất khỏe khoắn dáng thể thao vì cậu ấy chơi thể thao mỗi ngày. Cậu ấy có mái tóc ngắn đen sẫm và đôi mắt to. Luôn luôn có một nụ cười rạng rỡ nở trên khuôn mặt cậu ấy. Ở trường, cậu ấy học tập cực kỳ chăm chỉ. Toán học là môn học yêu thích của cậu ấy. Cậu ấy là một người năng động khi tham gia hầu hết các cuộc thi thể thao ở trường cũng như trong thành phố. Cậu ấy cũng chơi bóng chuyền rất giỏi. Ở nhà, Mark là một người con ngoan vì cậu ấy vâng lời cha mẹ và dành thời gian giúp đỡ họ làm công việc nhà.
+                </div>
+                <table class="glossary-table">
+                    <thead><tr><th>Từ vựng</th><th>Loại từ</th><th>Nghĩa Việt</th></tr></thead>
+                    <tbody>
+                        <tr><td>Sporty</td><td>(adj)</td><td>Dáng thể thao, khỏe khoắn</td></tr>
+                        <tr><td>Bright</td><td>(adj)</td><td>Rạng rỡ, tươi sáng</td></tr>
+                        <tr><td>Active</td><td>(adj)</td><td>Năng động, chủ động</td></tr>
+                        <tr><td>Competition</td><td>(n)</td><td>Cuộc thi đấu, cạnh tranh</td></tr>
+                        <tr><td>As well as</td><td>(idiom)</td><td>Cũng như là, và cả</td></tr>
+                        <tr><td>Volleyball</td><td>(n)</td><td>Môn bóng chuyền</td></tr>
+                        <tr><td>Obey</td><td>(v)</td><td>Vâng lời, tuân theo</td></tr>
+                        <tr><td>Housework</td><td>(n)</td><td>Công việc nhà</td></tr>
+                        <tr><td>Smile</td><td>(n/v)</td><td>Nụ cười, mỉm cười</td></tr>
+                        <tr><td>Son</td><td>(n)</td><td>Người con trai ngoan</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <!-- Right Side: Exercises Container -->
+        <div class="pane right-pane" id="questions-pane">
+            
+            <!-- EXERCISED 16 QUESTIONS -->
+            <div class="exercise-header">
+                <h2>Exercise 16: Read the advertisement/announcement and choose the correct option</h2>
+            </div>
+
+            <!-- Quiz 1 -->
+            <div class="question-card" data-q-id="ex16_1_1">
+                <span class="question-number">Part ❶ - Question 1</span>
+                <div class="question-stem">Do you want (1)_____ what kind of friend you are?</div>
+                <div class="options-list" data-correct="A">
+                    <button class="option-btn" data-val="A">A. to know</button>
+                    <button class="option-btn" data-val="B">B. to knowing</button>
+                    <button class="option-btn" data-val="C">C. knowing</button>
+                    <button class="option-btn" data-val="D">D. know</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Giải thích chi tiết từ Thạc Sĩ:</strong><br>
+                    1. <em>Ngữ pháp cốt lõi:</em> Động từ "want" bắt buộc đi kèm động từ nguyên mẫu có "to" theo cấu trúc: <strong>Want + to-V (muốn làm gì đó)</strong>.<br>
+                    2. Dịch nghĩa: "Bạn có muốn BIẾT bạn thuộc kiểu người bạn nào không?"<br>
+                    3. Loại trừ: Các phương án B (to V-ing), C (V-ing), và D (V-bare) đều sai hoàn toàn về mặt ngữ pháp đi kèm sau "want".
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex16_1_2">
+                <span class="question-number">Part ❶ - Question 2</span>
+                <div class="question-stem">It’s fun, easy, and only (2)_____ a few minutes.</div>
+                <div class="options-list" data-correct="B">
+                    <button class="option-btn" data-val="A">A. gives</button>
+                    <button class="option-btn" data-val="B">B. takes</button>
+                    <button class="option-btn" data-val="C">C. builds</button>
+                    <button class="option-btn" data-val="D">D. sees</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Giải thích chi tiết từ Thạc Sĩ:</strong><br>
+                    1. <em>Cấu trúc thời gian:</em> Sử dụng cấu trúc tốn thời gian: <strong>It takes + [khoảng thời gian]</strong> (nó tiêu tốn/mất bao lâu). Chủ ngữ "It" số ít nên động từ thêm s thành "takes".<br>
+                    2. Dịch nghĩa: "Nó rất vui, dễ dàng và chỉ MẤT một vài phút."<br>
+                    3. Loại trừ: A. gives (đưa cho), C. builds (xây dựng), D. sees (nhìn thấy) đều không tạo thành cấu trúc hợp nghĩa thời gian.
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex16_1_3">
+                <span class="question-number">Part ❶ - Question 3</span>
+                <div class="question-stem">(3)_____ the end, you will learn more about...</div>
+                <div class="options-list" data-correct="B">
+                    <button class="option-btn" data-val="A">A. With</button>
+                    <button class="option-btn" data-val="B">B. At</button>
+                    <button class="option-btn" data-val="C">C. For</button>
+                    <button class="option-btn" data-val="D">D. To</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Giải thích chi tiết từ Thạc Sĩ:</strong><br>
+                    1. <em>Cụm từ chỉ thời điểm:</em> Cụm cố định <strong>At the end (of something)</strong> nghĩa là vào thời điểm cuối của một sự kiện/bài kiểm tra.<br>
+                    2. Dịch nghĩa: "VÀO CUỐI BÀI kiểm tra, bạn sẽ học hỏi hiểu thêm về..."<br>
+                    3. Loại trừ: With (Với), For (Cho), To (Đến) không đi với cụm "the end" để chỉ mốc thời điểm kết thúc bài thi.
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex16_1_4">
+                <span class="question-number">Part ❶ - Question 4</span>
+                <div class="question-stem">you will learn more about (4)_____ friendship style...</div>
+                <div class="options-list" data-correct="C">
+                    <button class="option-btn" data-val="A">A. her</button>
+                    <button class="option-btn" data-val="B">B. its</button>
+                    <button class="option-btn" data-val="C">C. your</button>
+                    <button class="option-btn" data-val="D">D. his</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Giải thích chi tiết từ Thạc Sĩ:</strong><br>
+                    1. <em>Tính từ sở hữu phù hợp:</em> Đoạn văn đang nói trực tiếp với người đọc (Xưng hô "You"). Do đó phải dùng tính từ sở hữu tương ứng là <strong>your (của bạn)</strong>.<br>
+                    2. Dịch nghĩa: "...bạn sẽ biết thêm về phong cách tình bạn CỦA BẠN."<br>
+                    3. Loại trừ: her (của cô ấy), its (của nó), his (của anh ấy) đều sai lệch ngữ cảnh giao tiếp trực tiếp.
+                </div>
+            </div>
+
+            <!-- Quiz 2 -->
+            <div class="question-card" data-q-id="ex16_2_1">
+                <span class="question-number">Part ❷ - Question 1</span>
+                <div class="question-stem">I have many good friends (1)____ school.</div>
+                <div class="options-list" data-correct="A">
+                    <button class="option-btn" data-val="A">A. at</button>
+                    <button class="option-btn" data-val="B">B. on</button>
+                    <button class="option-btn" data-val="C">C. in</button>
+                    <button class="option-btn" data-val="D">D. to</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Giải thích chi tiết từ Thạc Sĩ:</strong><br>
+                    1. <em>Giới từ nơi chốn cố định:</em> Cụm từ thông dụng để diễn tả việc ở trường học hay bạn bè ở trường học là <strong>at school</strong>.<br>
+                    2. Dịch nghĩa: "Tớ có nhiều người bạn tốt Ở TRƯỜNG."
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex16_2_2">
+                <span class="question-number">Part ❷ - Question 2</span>
+                <div class="question-stem">They are kind, funny, and (2)_____.</div>
+                <div class="options-list" data-correct="C">
+                    <button class="option-btn" data-val="A">A. straight</button>
+                    <button class="option-btn" data-val="B">B. wavy</button>
+                    <button class="option-btn" data-val="C">C. helpful</button>
+                    <button class="option-btn" data-val="D">D. boring</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Giải thích chi tiết từ Thạc Sĩ:</strong><br>
+                    1. <em>Sự đồng điệu về mặt nghĩa tính từ:</em> Cấu trúc nối bằng từ "and" yêu cầu các từ phải cùng loại và cùng trường nghĩa tích cực. "kind" (tốt bụng), "funny" (vui vẻ) -> cần một tính từ chỉ tính cách tốt đẹp: <strong>helpful (hay giúp đỡ)</strong>.<br>
+                    2. Loại trừ: straight (thẳng), wavy (xoăn) dùng tả tóc vật lý; boring (nhạt nhẽo) mang nghĩa tiêu cực.
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex16_2_3">
+                <span class="question-number">Part ❷ - Question 3</span>
+                <div class="question-stem">He is friendly and always (3)______ me with homework.</div>
+                <div class="options-list" data-correct="C">
+                    <button class="option-btn" data-val="A">A. will help</button>
+                    <button class="option-btn" data-val="B">B. helped</button>
+                    <button class="option-btn" data-val="C">C. helps</button>
+                    <button class="option-btn" data-val="D">D. is helping</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Giải thích chi tiết từ Thạc Sĩ:</strong><br>
+                    1. <em>Thì hiện tại đơn:</em> Trạng từ tần suất "always" diễn tả hành động lặp lại đều đặn ở hiện tại. Chủ ngữ là "He" (ngôi thứ 3 số ít) -> động từ phải thêm -s/-es tạo thành <strong>helps</strong>.<br>
+                    2. Dịch nghĩa: "Cậu ấy thân thiện và luôn luôn GIÚP ĐỠ tớ làm bài tập."
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex16_2_4">
+                <span class="question-number">Part ❷ - Question 4</span>
+                <div class="question-stem">Let’s always be good friends and (4)_____ care of one another!</div>
+                <div class="options-list" data-correct="A">
+                    <button class="option-btn" data-val="A">A. take</button>
+                    <button class="option-btn" data-val="B">B. look</button>
+                    <button class="option-btn" data-val="C">C. make</button>
+                    <button class="option-btn" data-val="D">D. stay</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Giải thích chi tiết từ Thạc Sĩ:</strong><br>
+                    1. <em>Cụm động từ (Collocation):</em> Ta có cụm từ cố định không thể thay thế: <strong>take care of someone</strong> nghĩa là chăm sóc ai đó.<br>
+                    2. Dịch nghĩa: "Chúng ta hãy luôn là bạn tốt và CHĂM SÓC lẫn nhau nhé!"
+                </div>
+            </div>
+
+            <!-- Quiz 3 -->
+            <div class="question-card" data-q-id="ex16_3_1">
+                <span class="question-number">Part ❸ - Question 1</span>
+                <div class="question-stem">Do you have (1)______ friends? I do!</div>
+                <div class="options-list" data-correct="B">
+                    <button class="option-btn" data-val="A">A. talkative</button>
+                    <button class="option-btn" data-val="B">B. amazing</button>
+                    <button class="option-btn" data-val="C">C. sensitive</button>
+                    <button class="option-btn" data-val="D">D. serious</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Giải thích chi tiết từ Thạc Sĩ:</strong><br>
+                    1. <em>Ngữ nghĩa biểu cảm:</em> Tiêu đề bài viết ca ngợi "My Friends – A Gift in Life!" (Bạn bè là món quà cuộc sống) và các câu sau tả điều tốt lành -> Cần tính từ khen ngợi cao quý: <strong>amazing (tuyệt vời)</strong>.<br>
+                    2. Loại trừ: talkative (lắm lời), sensitive (nhạy cảm), serious (nghiêm trọng) không khít ngữ cảnh tích cực của bài quảng cáo.
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex16_3_2">
+                <span class="question-number">Part ❸ - Question 2</span>
+                <div class="question-stem">They help me when I’m sad and cheer me (2)_____.</div>
+                <div class="options-list" data-correct="C">
+                    <button class="option-btn" data-val="A">A. down</button>
+                    <button class="option-btn" data-val="B">B. to</button>
+                    <button class="option-btn" data-val="C">C. up</button>
+                    <button class="option-btn" data-val="D">D. for</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Giải thích chi tiết từ Thạc Sĩ:</strong><br>
+                    1. <em>Cụm động từ (Phrasal Verb):</em> Ta có cụm từ mang tính chất an ủi, làm cho ai đó phấn chấn lên khi buồn là <strong>cheer somebody up</strong>.<br>
+                    2. Dịch nghĩa: "Họ giúp đỡ tớ khi tớ buồn và CỔ VŨ tớ vui lên."
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex16_3_3">
+                <span class="question-number">Part ❸ - Question 3</span>
+                <div class="question-stem">On Sundays, we (3)_____ bikes and eat ice cream.</div>
+                <div class="options-list" data-correct="B">
+                    <button class="option-btn" data-val="A">A. do</button>
+                    <button class="option-btn" data-val="B">B. ride</button>
+                    <button class="option-btn" data-val="C">C. raise</button>
+                    <button class="option-btn" data-val="D">D. drive</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Giải thích chi tiết từ Thạc Sĩ:</strong><br>
+                    1. <em>Sự kết hợp từ chuẩn:</em> Đối với phương tiện thô sơ như xe đạp (bikes) hoặc động vật cưỡi ngựa, ta dùng động từ <strong>ride</strong> (đạp xe/cưỡi).<br>
+                    2. Loại trừ: "drive" chỉ dùng cho xe ô tô/xe tải có buồng lái cơ giới.
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex16_3_4">
+                <span class="question-number">Part ❸ - Question 4</span>
+                <div class="question-stem">Let’s (4)______ friendship every day!</div>
+                <div class="options-list" data-correct="C">
+                    <button class="option-btn" data-val="A">A. celebrated</button>
+                    <button class="option-btn" data-val="B">B. to celebrate</button>
+                    <button class="option-btn" data-val="C">C. celebrate</button>
+                    <button class="option-btn" data-val="D">D. celebrating</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Giải thích chi tiết từ Thạc Sĩ:</strong><br>
+                    1. <em>Cấu trúc câu cầu khiến đề nghị:</em> Cấu trúc <strong>Let's + V-nguyên mẫu (Không chia)</strong> kêu gọi chúng ta cùng làm gì đó.<br>
+                    2. Do đó, phương án dạng nguyên mẫu thuần túy là <strong>celebrate</strong>.
+                </div>
+            </div>
+
+
+            <!-- EXERCISE 17 QUESTIONS -->
+            <div class="exercise-header">
+                <h2>Exercise 17: Read the following passage and choose the correct word</h2>
+            </div>
+
+            <!-- Ex 17.1 -->
+            <div class="question-card" data-q-id="ex17_1_1">
+                <span class="question-number">Passage ❶ - Q1</span>
+                <div class="question-stem">She is tall and has a long black (1)______.</div>
+                <div class="options-list" data-correct="B">
+                    <button class="option-btn" data-val="A">A. nose</button>
+                    <button class="option-btn" data-val="B">B. hair</button>
+                    <button class="option-btn" data-val="C">C. eye</button>
+                    <button class="option-btn" data-val="D">D. arm</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Giải thích chi tiết từ Thạc Sĩ:</strong><br>
+                    1. Dựa trên tính từ bổ nghĩa "long black" (dài và đen huyền), bộ phận cơ thể người thích hợp nhất chỉ có thể là mái tóc (<strong>hair</strong>). Các danh từ số ít khác như nose, eye, arm không đi kèm cụm tính từ này để tả người con gái ở độ tuổi đi học một cách tự nhiên.
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex17_1_2">
+                <span class="question-number">Passage ❶ - Q2</span>
+                <div class="question-stem">Her apartment has a pool but she rarely (2)_______ to the swimming pool.</div>
+                <div class="options-list" data-correct="D">
+                    <button class="option-btn" data-val="A">A. have</button>
+                    <button class="option-btn" data-val="B">B. has</button>
+                    <button class="option-btn" data-val="C">C. go</button>
+                    <button class="option-btn" data-val="D">D. goes</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Giải thích chi tiết từ Thạc Sĩ:</strong><br>
+                    1. Chủ ngữ là "she" (ngôi thứ ba số ít). Trạng từ "rarely" định vị câu ở thì Hiện tại đơn. Động từ chuyển động đi tới nơi nào đó kết hợp giới từ "to" phía sau là <strong>goes</strong> (chia thêm -es do tận cùng là o).
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex17_1_3">
+                <span class="question-number">Passage ❶ - Q3</span>
+                <div class="question-stem">Her favorite subject (3)_______ IT...</div>
+                <div class="options-list" data-correct="A">
+                    <button class="option-btn" data-val="A">A. is</button>
+                    <button class="option-btn" data-val="B">B. am</button>
+                    <button class="option-btn" data-val="C">C. are</button>
+                    <button class="option-btn" data-val="D">D. was</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Giải thích chi tiết từ Thạc Sĩ:</strong><br>
+                    1. Chủ ngữ "Her favorite subject" (Môn học yêu thích của cô ấy) là một danh từ số ít, biểu đạt một sự thật hiển nhiên ổn định ở hiện tại -> Chọn động từ To-be ngôi số ít tương ứng là <strong>is</strong>.
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex17_1_4">
+                <span class="question-number">Passage ❶ - Q4</span>
+                <div class="question-stem">She is very (4)_______. She always helps people when they need.</div>
+                <div class="options-list" data-correct="C">
+                    <button class="option-btn" data-val="A">A. kind</button>
+                    <button class="option-btn" data-val="B">B. funny</button>
+                    <button class="option-btn" data-val="C">C. helpful</button>
+                    <button class="option-btn" data-val="D">D. selfish</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Giải thích chi tiết từ Thạc Sĩ:</strong><br>
+                    1. Mệnh đề phía sau làm đòn bẩy ngữ nghĩa rõ ràng: "She always helps people" (Cô ấy luôn luôn giúp đỡ mọi người) -> Tính từ biểu đạt bản chất hành động này là <strong>helpful (đầy lòng vị tha, hay giúp đỡ)</strong>.
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex17_1_5">
+                <span class="question-number">Passage ❶ - Q5</span>
+                <div class="question-stem">Susan and I have the festival (5)_______ school next week.</div>
+                <div class="options-list" data-correct="B">
+                    <button class="option-btn" data-val="A">A. in</button>
+                    <button class="option-btn" data-val="B">B. at</button>
+                    <button class="option-btn" data-val="C">C. on</button>
+                    <button class="option-btn" data-val="D">D. by</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Giải thích chi tiết từ Thạc Sĩ:</strong><br>
+                    1. Giới từ chỉ địa điểm tổ chức hoạt động học đường quen thuộc luôn đi thành cấu trúc bền vững: <strong>at school</strong> (tại trường).
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex17_1_6">
+                <span class="question-number">Passage ❶ - Q6</span>
+                <div class="question-stem">We (6)_______ and can't wait to go to the festival.</div>
+                <div class="options-list" data-correct="D">
+                    <button class="option-btn" data-val="A">A. is exciting</button>
+                    <button class="option-btn" data-val="B">B. are exciting</button>
+                    <button class="option-btn" data-val="C">C. is excited</button>
+                    <button class="option-btn" data-val="D">D. are excited</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Giải thích chi tiết từ Thạc Sĩ:</strong><br>
+                    1. <em>Sự hòa hợp chủ vị & tính từ:</em> Chủ ngữ là "We" (Số nhiều) -> Loại ngay A và C dùng động từ "is".<br>
+                    2. Khác biệt đuôi -ing và -ed: Tính từ đuôi <strong>-ed (excited)</strong> mô tả cảm xúc bên trong của con người chịu tác động của sự kiện; tính từ đuôi -ing (exciting) mô tả tính chất hấp dẫn của sự vật/sự việc. Do đó chọn <strong>are excited</strong>.
+                </div>
+            </div>
+
+
+            <!-- Ex 17.2 -->
+            <div class="question-card" data-q-id="ex17_2_1">
+                <span class="question-number">Passage ❷ - Q1</span>
+                <div class="question-stem">He is a physics teacher. He's (1)_____ art school in Scotland.</div>
+                <div class="options-list" data-correct="B">
+                    <button class="option-btn" data-val="A">A. teach</button>
+                    <button class="option-btn" data-val="B">B. teaches</button>
+                    <button class="option-btn" data-val="C">C. teaching</button>
+                    <button class="option-btn" data-val="D">D. teacher</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Giải thích chi tiết từ Thạc Sĩ:</strong><br>
+                    1. Lưu ý lỗi chính tả thu gọn của đề gốc "He's". Chiếu theo bản chất ngữ cảnh giới thiệu nghề nghiệp "He is a physics teacher", câu sau cấu thành chủ ngữ "He" kết hợp hành động nghề nghiệp ở Hiện tại đơn -> chọn động từ chia ngôi thứ ba số ít <strong>teaches</strong> (giảng dạy).
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex17_2_2">
+                <span class="question-number">Passage ❷ - Q2</span>
+                <div class="question-stem">Every morning he gets up at 6 o'clock, (2)______ breakfast...</div>
+                <div class="options-list" data-correct="B">
+                    <button class="option-btn" data-val="A">A. have</button>
+                    <button class="option-btn" data-val="B">B. has</button>
+                    <button class="option-btn" data-val="C">C. do</button>
+                    <button class="option-btn" data-val="D">D. play</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Giải thích chi tiết từ Thạc Sĩ:</strong><br>
+                    1. Cụm từ biểu đạt việc dùng bữa sáng là <strong>have breakfast</strong>. Do chủ ngữ nhất quán xuyên suốt chuỗi hành động là "he" (số ít) ở hiện tại đơn song hành với từ "gets up", biến thể của "have" phải chuyển thành <strong>has</strong>.
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex17_2_3">
+                <span class="question-number">Passage ❷ - Q3</span>
+                <div class="question-stem">The school is far from his home, so he can't (3)_______ there.</div>
+                <div class="options-list" data-correct="A">
+                    <button class="option-btn" data-val="A">A. walk</button>
+                    <button class="option-btn" data-val="B">B. go on foot</button>
+                    <button class="option-btn" data-val="C">C. ride a bike</button>
+                    <button class="option-btn" data-val="D">D. fly</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Giải thích chi tiết từ Thạc Sĩ:</strong><br>
+                    1. Vì vế trước nói "trường rất xa nhà" và vế sau nói thêm "He must go by bus" (Anh ấy phải đi xe buýt), chứng tỏ anh ấy không thể đi bộ được. Từ <strong>walk</strong> kết hợp trạng từ chỉ địa điểm "there" tạo thành "walk there" (đi bộ tới đó) hoàn hảo về mặt cấu trúc.<br>
+                    2. Loại B vì không ai nói "go on foot there" (sai trật tự từ).
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex17_2_4">
+                <span class="question-number">Passage ❷ - Q4</span>
+                <div class="question-stem">He has lunch at a (4)______ nearby.</div>
+                <div class="options-list" data-correct="B">
+                    <button class="option-btn" data-val="A">A. park</button>
+                    <button class="option-btn" data-val="B">B. restaurant</button>
+                    <button class="option-btn" data-val="C">C. museum</button>
+                    <button class="option-btn" data-val="D">D. bank</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Giải thích chi tiết từ Thạc Sĩ:</strong><br>
+                    1. Địa điểm thích hợp nhất cho việc trả tiền ăn trưa nhanh chóng trong ngày làm việc của một giáo viên xa nhà là <strong>restaurant (nhà hàng, quán ăn)</strong>. Các địa điểm công cộng như công viên, bảo tàng hay ngân hàng không phục vụ mục đích chính này.
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex17_2_5">
+                <span class="question-number">Passage ❷ - Q5</span>
+                <div class="question-stem">He doesn't work (5)______ Sundays.</div>
+                <div class="options-list" data-correct="D">
+                    <button class="option-btn" data-val="A">A. at</button>
+                    <button class="option-btn" data-val="B">B. for</button>
+                    <button class="option-btn" data-val="C">C. in</button>
+                    <button class="option-btn" data-val="D">D. on</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Giải thích chi tiết từ Thạc Sĩ:</strong><br>
+                    1. <em>Quy tắc giới từ thời gian:</em> Đứng trước các thứ trong tuần (Sundays, Mondays...) chúng ta luôn luôn bắt buộc sử dụng giới từ <strong>on</strong>.
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex17_2_6">
+                <span class="question-number">Passage ❷ - Q6</span>
+                <div class="question-stem">He is married and he (6)_______ a son.</div>
+                <div class="options-list" data-correct="B">
+                    <button class="option-btn" data-val="A">A. have</button>
+                    <button class="option-btn" data-val="B">B. has</button>
+                    <button class="option-btn" data-val="C">C. is</button>
+                    <button class="option-btn" data-val="D">D. wear</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Giải thích chi tiết từ Thạc Sĩ:</strong><br>
+                    1. Để diễn đạt quyền sở hữu thành viên gia đình (có một đứa con), ta dùng động từ "have". Do đi kèm với chủ ngữ ngôi thứ 3 số ít "he", từ này biến đổi thành <strong>has</strong>.
+                </div>
+            </div>
+
+
+            <!-- EXERCISE 18 QUESTIONS -->
+            <div class="exercise-header">
+                <h2>Exercise 18: Answer the Reading Comprehension Questions</h2>
+            </div>
+
+            <!-- Passage 1 RC -->
+            <div class="question-card" data-q-id="ex18_1_1">
+                <span class="question-number">Passage ❶ - Câu 1</span>
+                <div class="question-stem">Where is Tina writing from?</div>
+                <div class="options-list" data-correct="C">
+                    <button class="option-btn" data-val="A">A. Her home</button>
+                    <button class="option-btn" data-val="B">B. A school trip</button>
+                    <button class="option-btn" data-val="C">C. A summer camp in Brisbane</button>
+                    <button class="option-btn" data-val="D">D. A museum in the city center</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Dẫn chứng từ bài đọc:</strong> "I’m writing to you from the summer camp in Brisbane..." -> Khẳng định chính xác địa điểm viết thư là từ một trại hè tại thành phố Brisbane xinh đẹp.
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex18_1_2">
+                <span class="question-number">Passage ❶ - Câu 2</span>
+                <div class="question-stem">The word "fine" in line 3 is closest in meaning to __________.</div>
+                <div class="options-list" data-correct="B">
+                    <button class="option-btn" data-val="A">A. bad</button>
+                    <button class="option-btn" data-val="B">B. excellent</button>
+                    <button class="option-btn" data-val="C">C. cloudy</button>
+                    <button class="option-btn" data-val="D">D. rainy</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Giải thích chi tiết:</strong> Trong ngữ cảnh thời tiết "the weather is fine, too", từ "fine" mô tả trạng thái thời tiết tốt, đẹp, tạnh ráo, tương đương sâu sắc với tính từ <strong>excellent (tuyệt vời, rất tốt)</strong>. Các từ còn lại mang nghĩa tiêu cực (xấu, nhiều mây, mưa).
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex18_1_3">
+                <span class="question-number">Passage ❶ - Câu 3</span>
+                <div class="question-stem">According to the passage, which of the following sentences is TRUE?</div>
+                <div class="options-list" data-correct="D">
+                    <button class="option-btn" data-val="A">A. Tina is at the camp alone.</button>
+                    <button class="option-btn" data-val="B">B. The weather at the camp is bad.</button>
+                    <button class="option-btn" data-val="C">C. Tina is sharing a room with one friend.</button>
+                    <button class="option-btn" data-val="D">D. Hana is kind and friendly.</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Dẫn chứng bài đọc giải quyết câu hỏi:</strong> Đoạn 2 ghi rõ: "Hana... She is very kind and friendly." Vì vậy đây là phát biểu hoàn toàn ĐÚNG.<br>
+                    Loại trừ: A sai vì đi với bạn; B sai vì thời tiết tốt; C sai vì ở cùng 2 người bạn (Hana và Mi).
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex18_1_4">
+                <span class="question-number">Passage ❶ - Câu 4</span>
+                <div class="question-stem">Which activity is NOT mentioned as something they can do at the camp?</div>
+                <div class="options-list" data-correct="B">
+                    <button class="option-btn" data-val="A">A. Going fishing</button>
+                    <button class="option-btn" data-val="B">B. Playing football</button>
+                    <button class="option-btn" data-val="C">C. Visiting a museum</button>
+                    <button class="option-btn" data-val="D">D. Having parties</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Giải thích loại trừ:</strong> Bài đọc liệt kê: "going fishing, sailing, playing volleyball..., visiting a museum... or having parties". Tuyệt đối KHÔNG hề có sự xuất hiện của từ <strong>Playing football (chơi bóng đá)</strong>.
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex18_1_5">
+                <span class="question-number">Passage ❶ - Câu 5</span>
+                <div class="question-stem">What does Tina ask her Grandma to do at the end of the letter?</div>
+                <div class="options-list" data-correct="A">
+                    <button class="option-btn" data-val="A">A. Write back to her soon.</button>
+                    <button class="option-btn" data-val="B">B. Send her more money.</button>
+                    <button class="option-btn" data-val="C">C. Come visit the camp.</button>
+                    <button class="option-btn" data-val="D">D. Tell Grandpa she said hello.</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Dẫn chứng từ bài đọc:</strong> Ngay dòng cuối thư Tina khẩn khoản viết: "Write to me soon." -> Nghĩa là hãy phản hồi viết lại thư cho cháu sớm nhé bà. Do đó chọn đáp án A.
+                </div>
+            </div>
+
+
+            <!-- Passage 2 RC -->
+            <div class="question-card" data-q-id="ex18_2_1">
+                <span class="question-number">Passage ❷ - Câu 1</span>
+                <div class="question-stem">What is the main topic of the passage?</div>
+                <div class="options-list" data-correct="A">
+                    <button class="option-btn" data-val="A">A. Julie's best friend</button>
+                    <button class="option-btn" data-val="B">B. Janet's favorite activities</button>
+                    <button class="option-btn" data-val="C">C. Julie's hobbies</button>
+                    <button class="option-btn" data-val="D">D. School life</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Phân tích đại ý:</strong> Ngay câu đầu tiên Julie khẳng định "my best friend is Janet". Xuyên suốt bài viết tập trung phác họa tính cách, thói quen đi học cùng nhau và tình bạn khăng khít với Janet -> Đề tài trọng tâm là <strong>Người bạn thân nhất của Julie</strong>.
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex18_2_2">
+                <span class="question-number">Passage ❷ - Câu 2</span>
+                <div class="question-stem">Which of the following is NOT true according to the passage?</div>
+                <div class="options-list" data-correct="B">
+                    <button class="option-btn" data-val="A">A. Julie and Janet are the same age.</button>
+                    <button class="option-btn" data-val="B">B. Julie and Janet are in different classes.</button>
+                    <button class="option-btn" data-val="C">C. Janet is kind and friendly.</button>
+                    <button class="option-btn" data-val="D">D. They live in the same building.</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Dẫn chứng tìm câu SAI:</strong> Bài đọc ghi "we’re in the same class" (chúng tớ học cùng một lớp). Do đó, câu B tuyên bố họ học ở các lớp khác nhau (different classes) là hoàn toàn SAI so với bài đọc.
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex18_2_3">
+                <span class="question-number">Passage ❷ - Câu 3</span>
+                <div class="question-stem">What do Julie and Janet usually do at break time?</div>
+                <div class="options-list" data-correct="C">
+                    <button class="option-btn" data-val="A">A. They play games and read comic books.</button>
+                    <button class="option-btn" data-val="B">B. They go skating or to the cinema.</button>
+                    <button class="option-btn" data-val="C">C. They sometimes play skipping or just sit and chat.</button>
+                    <button class="option-btn" data-val="D">D. They talk about their homework.</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Dẫn chứng trực tiếp:</strong> "At break time, we sometimes play skipping or we just sit and chat." Khớp hoàn toàn từng từ ngữ với câu đáp án C.
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex18_2_4">
+                <span class="question-number">Passage ❷ - Câu 4</span>
+                <div class="question-stem">The word "her" in line 6 refers to _______.</div>
+                <div class="options-list" data-correct="B">
+                    <button class="option-btn" data-val="A">A. Julie</button>
+                    <button class="option-btn" data-val="B">B. Janet</button>
+                    <button class="option-btn" data-val="C">C. homework</button>
+                    <button class="option-btn" data-val="D">D. question</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Phân tích liên từ thay thế:</strong> "Janet is very helpful to me. When I’m doing my homework... I often call her for help." Julie đang làm bài tập của mình và gọi điện cho người bạn thân để nhờ giúp -> Đại từ tân ngữ "her" thay thế trực tiếp cho cô bạn <strong>Janet</strong>.
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex18_2_5">
+                <span class="question-number">Passage ❷ - Câu 5</span>
+                <div class="question-stem">What does Janet usually want to do at weekends?</div>
+                <div class="options-list" data-correct="C">
+                    <button class="option-btn" data-val="A">A. Stay at home and read comic books.</button>
+                    <button class="option-btn" data-val="B">B. Call Julie for help with homework.</button>
+                    <button class="option-btn" data-val="C">C. Go skating in the park or go to the cinema.</button>
+                    <button class="option-btn" data-val="D">D. Talk about school.</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Dẫn chứng từ đoạn văn:</strong> "At weekends, Janet usually wants to go skating in the park or go to the cinema..." Khẳng định mong ước cuối tuần của Janet là đi trượt pa-tin hoặc đi xem phim rạp.
+                </div>
+            </div>
+
+
+            <!-- Passage 3 RC -->
+            <div class="question-card" data-q-id="ex18_3_1">
+                <span class="question-number">Passage ❸ - Câu 1</span>
+                <div class="question-stem">How do they go to school?</div>
+                <div class="options-list" data-correct="C">
+                    <button class="option-btn" data-val="A">A. by bus</button>
+                    <button class="option-btn" data-val="B">B. on foot</button>
+                    <button class="option-btn" data-val="C">C. by motorbike</button>
+                    <button class="option-btn" data-val="D">D. by bike</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Dẫn chứng từ bài đọc:</strong> "Everyday, my father takes us to school on his motorbike..." Chở tới trường bằng xe máy của bố, còn lúc về mới là đi bộ "on foot". Vì vậy phương tiện đi học là <strong>by motorbike</strong>.
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex18_3_2">
+                <span class="question-number">Passage ❸ - Câu 2</span>
+                <div class="question-stem">What is Lan’s favourite subject?</div>
+                <div class="options-list" data-correct="C">
+                    <button class="option-btn" data-val="A">A. English</button>
+                    <button class="option-btn" data-val="B">B. geography</button>
+                    <button class="option-btn" data-val="C">C. Math</button>
+                    <button class="option-btn" data-val="D">D. Literature</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Dẫn chứng:</strong> "Her favourite subject is Math, and she is really good at it." Khẳng định môn học say mê của Lan là toán, còn tiếng Anh "English" là của Nga ("Mine is English").
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex18_3_3">
+                <span class="question-number">Passage ❸ - Câu 3</span>
+                <div class="question-stem">What do they usually help each other?</div>
+                <div class="options-list" data-correct="A">
+                    <button class="option-btn" data-val="A">A. do their homework</button>
+                    <button class="option-btn" data-val="B">B. do their housework</button>
+                    <button class="option-btn" data-val="C">C. do their shopping</button>
+                    <button class="option-btn" data-val="D">D. help their housework</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Dẫn chứng bài đọc:</strong> "We usually help each other with our homework." Nghĩa là trợ giúp nhau giải quyết các bài tập về nhà do thầy cô giao.
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex18_3_4">
+                <span class="question-number">Passage ❸ - Câu 4</span>
+                <div class="question-stem">What does Lan do to make Nga happy?</div>
+                <div class="options-list" data-correct="B">
+                    <button class="option-btn" data-val="A">A. sing a song</button>
+                    <button class="option-btn" data-val="B">B. tell stories</button>
+                    <button class="option-btn" data-val="C">C. buy presents</button>
+                    <button class="option-btn" data-val="D">D. go shopping</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Dẫn chứng bài văn:</strong> "Whenever I am sad, Lan always tells me stories to make me happy." Chứng tỏ Lan sẽ lựa chọn kể các câu chuyện hay vui vẻ để xoa dịu nỗi buồn của Nga.
+                </div>
+            </div>
+
+            <div class="question-card" data-q-id="ex18_3_5">
+                <span class="question-number">Passage ❸ - Câu 5</span>
+                <div class="question-stem">What is NOT TRUE about the passage?</div>
+                <div class="options-list" data-correct="C">
+                    <button class="option-btn" data-val="A">A. They are classmate</button>
+                    <button class="option-btn" data-val="B">B. They are neighbours</button>
+                    <button class="option-btn" data-val="C">C. Nga feels unlucky to have a friend like Lan</button>
+                    <button class="option-btn" data-val="D">D. Lan is an intelligent girl</button>
+                </div>
+                <div class="explanation-box">
+                    <strong>Phân tích câu SAI:</strong> Ở câu kết bài Nga tâm sự: "I feel really lucky to have a best friend like Lan" (Tớ thấy vô cùng may mắn). Do đó, câu C phát biểu Nga cảm thấy không may mắn (unlucky) là hoàn toàn SAI sự thật.
+                </div>
+            </div>
+
+
+            <!-- EXERCISE 19 INTERACTIVE BLANKS -->
+            <div class="exercise-header">
+                <h2>Exercise 19: Gamified Click-to-Reveal Key Answers</h2>
+            </div>
+            <div class="question-card">
+                <div class="question-stem">Nhấp vào vùng gạch chân trống để xem đáp án điền sẵn:</div>
+                <p>1. Why is Mark tall and sporty?<br>🡲 Because <span class="inline-fill-blank" onclick="revealInlineBlank(this, 'he often plays sports every day.')">...........</span></p>
+                <p>2. What is there always on his face?<br>🡲 There <span class="inline-fill-blank" onclick="revealInlineBlank(this, 'is always a bright smile on his face.')">...........</span></p>
+                <p>3. What is his favourite subject?<br>🡲 It's <span class="inline-fill-blank" onclick="revealInlineBlank(this, 'Maths.')">...........</span></p>
+                <p>4. How does he play volleyball?<br>🡲 He <span class="inline-fill-blank" onclick="revealInlineBlank(this, 'plays it well.')">...........</span></p>
+                <p>5. What does he spend time doing at home?<br>🡲 He <span class="inline-fill-blank" onclick="revealInlineBlank(this, 'spends time helping his parents with the housework.')">...........</span></p>
+            </div>
+
+
+            <!-- EXERCISE 20 FIXED REMOVED PHRASES -->
+            <div class="exercise-header">
+                <h2>Exercise 20: Text Completion with Removed Sentences</h2>
+            </div>
+
+            <div class="question-card">
+                <span class="question-number">Text ❶ Completion</span>
+                <div class="question-stem" style="font-weight:normal; line-height:1.7;">
+                    Hi! Nice to meet you! My name is Minh. <strong>(1) [B. I am 12 and a pupil at Dong Da Secondary School]</strong>. I like Maths, English and history. My teachers are very kind and caring. I have many friends <strong>(2) [D. and they are friendly]</strong>. I love my school a lot. My family lives in Ha Noi. I have a younger brother. He is 7 years old. <strong>(3) [C. He is very active and funny]</strong>. He has black hair and big brown eyes. At the weekend, <strong>(4) [A. we often play football and computer games]</strong>. Sometimes, I visit my grandmother. She lives in the countryside. She is 63 years old with long white hair. She is really loving and caring. I often tell her about my friends.
+                </div>
+            </div>
+
+            <div class="question-card">
+                <span class="question-number">Text ❷ Completion</span>
+                <div class="question-stem" style="font-weight:normal; line-height:1.7;">
+                    My best friend’s name is Nhi. We are studying in the same class. She is my good friend and always helps me. <strong>(1) [D. She also understands me well]</strong> I like her very much. She lives near my house <strong>(2) [B. and we often walk to school in the morning]</strong>. On Sundays she comes to my house. We both like eating ice – cream, drawing <strong>(3) [C. and writing stories in our free time]</strong>. Nhi is an active girl and never feels sad. She often tells me her interesting jokes. She has a round face with long black hair. At the moment, <strong>(4) [A. Nhi is at an English camp in Da Nang]</strong>. I miss her a lot.
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Footer Submit Section -->
+    <div class="footer-action">
+        <button class="btn-submit" onclick="gradeExam()">NỘP BÀI KIỂM TRA 🚀</button>
+    </div>
+
+    <!-- Result Modal Dashboard -->
+    <div class="modal-overlay" id="result-modal">
+        <div class="modal-card">
+            <div class="score-circle" id="score-text">0/0</div>
+            <h2 style="margin:0 0 10px 0; color:#2d3748;">KẾT QUẢ BÀI LÀM</h2>
+            <div class="modal-feedback" id="modal-feedback-msg">Tuyệt vời ông mặt trời!</div>
+            <button class="btn-close-modal" onclick="closeModal()">LÀM LẠI BÀI TẬP 🔄</button>
+        </div>
+    </div>
+
+    <!-- Game Engine Logic Script -->
+    <script>
+        // Web Audio API Sound Generator
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'correct') {
+                // 'Ding' sound effect
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gainNormally I can help with things like this, but I don't seem to have access to that content. You can try again or ask me for something else.
